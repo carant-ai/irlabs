@@ -1,3 +1,4 @@
+from irlabs.models.config import IRConfig
 from irlabs.models.embed import LMForEmbedConfig
 import torch
 from torch import nn
@@ -10,12 +11,11 @@ class CLSPooler(nn.Module):
     def forward(self, inp):
         return inp.last_hidden_state[:, 0, :]
 
-def build_pooling(c: LMForEmbedConfig):
-    if c.pooling_strategy == "max":
-        raise NotImplementedError 
-
-    elif c.pooling_strategy == "cls":
+def build_pooling(c: IRConfig): 
+    if c.pooling_strategy == "cls":
         return CLSPooler()
 
-    elif c.pooling_strategy == "mean":
-        raise NotImplementedError
+    return CLSPooler()
+
+
+

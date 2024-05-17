@@ -16,4 +16,4 @@ class IRConfig(PretrainedConfig):
         self.max_d_length = max_d_length
         self.q_prefix = q_prefix
         self.d_prefix = d_prefix
-        self.pooling_strategy = embed_pooling_strategy 
+        self.embed_pooling_strategy = embed_pooling_strategy 

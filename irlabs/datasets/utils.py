@@ -1,13 +1,14 @@
-from datasets import Dataset, IterableDataset
-from irlabs.models.config import IRLabsConfig
+from datasets import Dataset, DatasetDict
+from irlabs.models.config import IRConfig
 from transformers import PretrainedConfig, AutoTokenizer
 from typing import Any, Dict, Optional, List
 
 
 def preprocess_tokenize_single_loader(
-    datasets: Dataset,
-    config: IRLabsConfig,
+    datasets: Dataset | DatasetDict,
+    config: PretrainedConfig,
     features: List[str],
+    num_proc: int,
     mapping_kwargs: Optional[Dict[str, Any]] = None,
 ):
     tokenizer = AutoTokenizer.from_pretrained(config.name_or_path)
@@ -26,16 +27,14 @@ def preprocess_tokenize_single_loader(
             )
         return _flatten_features(new_batch)
 
-    datasets = datasets.map(tokenize, **mapping_kwargs, remove_columns= features)
-    datasets.set_format("torch", features)
-    return datasets
+    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc)
 
 
 
 def _flatten_features(features):
     flattened_features = {}
-    for key in features:
-        for k, v in features[key].items():
-            flattened_features[f"{key}_{k}"] = v
+    for feat in features:
+        for k, v in features[feat].items():
+            flattened_features[f"{feat}_{k}"] = v
 
     return flattened_features

@@ -11,8 +11,8 @@ class SingleLoaderCollator:
     model_input_names: List[str]
 
     def __call__(self, batch: List[Dict[str, Any]]) -> Dict[str, torch.Tensor]:
-        columns = list(batch[0].keys())
         new_batch = {}
+        new_batch_labels = {}
         for feature in self.valid_features:
             new_batch[f"{feature}"] = {
                     k: torch.cat(
@@ -24,8 +24,8 @@ class SingleLoaderCollator:
             return new_batch
 
         for label_column in self.valid_labels:
-            new_batch[label_column] = torch.cat(
+            new_batch_labels[label_column] = torch.cat(
                 [row[label_column].view(1, -1) for row in batch], dim=0
             ).view(-1)
 
-        return new_batch
+        return new_batch, new_batch_labels

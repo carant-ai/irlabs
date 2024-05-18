@@ -1,4 +1,3 @@
-from torch._prims_common import infer_size_shapes
 from irlabs.models import IRConfig, BertForEmbedding
 from transformers import AutoTokenizer
 from irlabs.trainer import IRModule
@@ -11,7 +10,9 @@ import os
 
 
 def main():
-    model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1")
+    config = IRConfig(ir_q_prefix="babidong:")
+    model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1", config)
+    model.push_to_hub("carlesoctav/coba-pth-5")
     dataset = load_dataset(
         "csv",
         data_files="/mnt/disks/persist/yourfile.tsv",
@@ -34,27 +35,9 @@ def main():
         num_workers = 16
     )
 
+    data_module.prepare_data()
 
-    optimizers_hparams = {
-        "lr": 2e-5,
-    }
 
-    ir_module = IRModule(
-        model=model,
-        loss_fn=MarginMSE(),
-        optimizer_name="Adam",
-        weight_decay=5e-4,
-        warmup_step=10000,
-        optimizer_hparams=optimizers_hparams,
-    )
-
-    for batch_idx, batch in enumerate(data_loader):
-        ir_module.training_step(batch, batch_idx)
-        break
-    return
-
-    trainer = Trainer()
-    trainer.fit(ir_module, train_dataloaders=data_loader)
 
 
 if __name__ == "__main__":

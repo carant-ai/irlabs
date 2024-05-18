@@ -1,5 +1,5 @@
 from torch import optim, Tensor
-import torch
+import numpy as np
 
 class LinearDecayWithWarmupScheduler(optim.lr_scheduler.LRScheduler):
 
@@ -13,7 +13,7 @@ class LinearDecayWithWarmupScheduler(optim.lr_scheduler.LRScheduler):
         return [base_lr * lr_factor for base_lr in self.base_lrs]
 
     def get_lr_factor(self, epoch) -> Tensor:
-        lr_factor = 0.5 * (1 + torch.cos(torch.pi * epoch / self.max_num_iters))
+        lr_factor = 0.5 * (1 + np.cos(np.pi * epoch / self.max_num_iters))
         if epoch <= self.warmup:
             lr_factor *= epoch * 1.0 / self.warmup
         return lr_factor

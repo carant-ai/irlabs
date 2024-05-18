@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Tuple, Optional
 
 import torch
 
@@ -10,18 +10,21 @@ class SingleLoaderCollator:
     valid_labels: List[str] | None
     model_input_names: List[str]
 
-    def __call__(self, batch: List[Dict[str, Any]]) -> Dict[str, torch.Tensor]:
+    def __call__(
+        self, batch: List[Dict[str, Any]]
+    ) -> Tuple[Dict[str, torch.Tensor], Optional[Dict[str, torch.Tensor]]]:
         new_batch = {}
         new_batch_labels = {}
         for feature in self.valid_features:
             new_batch[f"{feature}"] = {
-                    k: torch.cat(
+                k: torch.cat(
                     [row[f"{feature}_{k}"].view(1, -1) for row in batch], dim=0
-                ) for k in (self.model_input_names)
+                )
+                for k in (self.model_input_names)
             }
 
         if self.valid_labels is None:
-            return new_batch
+            return new_batch, None
 
         for label_column in self.valid_labels:
             new_batch_labels[label_column] = torch.cat(

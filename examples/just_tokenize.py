@@ -11,7 +11,7 @@ import os
 
 
 def main():
-    model = BertForEmbedding.from_pretrained("bert-base-uncased")
+    model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1")
     dataset = load_dataset(
         "csv",
         data_files="/mnt/disks/persist/yourfile.tsv",
@@ -31,10 +31,9 @@ def main():
         ["positive", "anchor", "negative"],
         ["positive_score", "negative_score"],
         val_ratio=0.01,
+        num_workers = 16
     )
 
-    data_module.setup(stage="fit")
-    data_loader = data_module.train_dataloader()
 
     optimizers_hparams = {
         "lr": 2e-5,
@@ -48,6 +47,11 @@ def main():
         warmup_step=10000,
         optimizer_hparams=optimizers_hparams,
     )
+
+    for batch_idx, batch in enumerate(data_loader):
+        ir_module.training_step(batch, batch_idx)
+        break
+    return
 
     trainer = Trainer()
     trainer.fit(ir_module, train_dataloaders=data_loader)

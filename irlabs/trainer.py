@@ -19,10 +19,10 @@ class IRModule(LightningModule):
         optimizer_name: str,
         weight_decay: float,
         warmup_step: int,
-        optimizer_hparams: Dict[str, Any]
+        optimizer_hparams: Dict[str, Any],
     ):
         super().__init__()
-        self.model =model
+        self.model = model
         self.loss_fn = loss_fn
         self.optimizer_name = optimizer_name
         self.weight_decay = weight_decay
@@ -35,21 +35,29 @@ class IRModule(LightningModule):
         for key, item in features.items():
             reps[key] = self.model(**item)
 
-        print(f"DEBUGPRINT[14]: trainer.py:33: batch_feat_labels={reps}")
         loss = self.loss_fn(reps, labels)
-        print(f"DEBUGPRINT[16]: trainer.py:39: loss={loss}")
-        self.log(f"{mode}_{self.loss_fn._get_name()}", loss, on_step=True, on_epoch=True)
+        self.log(
+            f"{mode}_{self.loss_fn._get_name()}", loss, on_step=True, on_epoch=True
+        )
         return loss
 
     def training_step(self, *args: Any, **kwargs: Any):
         batch, batch_idx = args
-        self.step(batch, batch_idx, mode="train")
+        loss = self.step(batch, batch_idx, mode="train")
+        self.log("train_loss", loss, on_step=True, on_epoch=True)
+        return loss
 
     def validation_step(self, *args: Any, **kwargs: Any):
         batch, batch_idx = args
-        self.step(batch, batch_idx, mode="val")
+        loss = self.step(batch, batch_idx, mode="val")
+        self.log("val_loss", loss, on_step=True, on_epoch=True)
+        return loss
 
     def configure_optimizers(self):
+        warm_up = self.warm_up
+        if isinstance(self.warmup_step, float):
+            warm_up = self.trainer.estimated_stepping_batches * self.warmup_step
+
         optimizer = optimizer_factory(
             self.model, self.optimizer_name, self.optimizer_hparams
         )

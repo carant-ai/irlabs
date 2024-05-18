@@ -1,5 +1,7 @@
 from lightning import LightningDataModule
 from torch.utils.data import DataLoader
+import os
+
 
 from typing import List, Any, Optional
 from datasets import (
@@ -25,13 +27,13 @@ class SingleLoaderModule(LightningDataModule):
         config: Optional[PretrainedConfig],
         features: List[str],
         labels: List[str] | None,
-        val_ratio: float | None,
+        val_ratio: float = 0.01,
         data_collator: Optional[Any] = None,
-        batch_size: int = 4,
+        batch_size: int = 32,
         seed: int = 42,
         drop_last: bool = False,
         shuffle: bool = True,
-        num_workers: int = 4,
+        num_workers: int = 8,
         pin_memory: bool = True,
         persistent_workers: bool = False,
     ):
@@ -54,6 +56,10 @@ class SingleLoaderModule(LightningDataModule):
     def prepare_data(self) -> None:
         datasets = self.datasets
 
+        if os.path.exists(self.local_save_file):
+            logger.info(f"{self.local_save_file} exists, skipping prepare_data")
+            return 
+
         if self.config is None:
             logger.warning("config params must present")
             raise ValueError("config params must present")
@@ -65,9 +71,8 @@ class SingleLoaderModule(LightningDataModule):
             datasets = concatenate_datasets([datasets[idx] for idx in datasets.keys()])
 
         datasets = preprocess_tokenize_single_loader(
-            datasets, self.config, self.features, self.num_workers
+            datasets, self.config, self.features, self.num_workers, self.local_save_file
         )
-        datasets.save_to_disk(self.local_save_file)
 
     def setup(self, stage: str) -> None:
         self.datasets = Dataset.load_from_disk(self.local_save_file)

@@ -9,6 +9,7 @@ def preprocess_tokenize_single_loader(
     config: PretrainedConfig,
     features: List[str],
     num_proc: int,
+    save_file: str,
     mapping_kwargs: Optional[Dict[str, Any]] = None,
 ):
     tokenizer = AutoTokenizer.from_pretrained(config.name_or_path)
@@ -27,7 +28,7 @@ def preprocess_tokenize_single_loader(
             )
         return _flatten_features(new_batch)
 
-    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc)
+    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc, cache_file_name= save_file)
 
 
 

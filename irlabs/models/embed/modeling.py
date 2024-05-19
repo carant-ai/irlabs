@@ -4,9 +4,6 @@ from transformers import (
     BertConfig,
     BertModel,
     BertPreTrainedModel,
-    AutoConfig,
-    PretrainedConfig,
-    is_ray_available,
 )
 from irlabs.models.config import IRConfig
 from irlabs.models.utils import combine_dict

@@ -28,7 +28,7 @@ def preprocess_tokenize_single_loader(
             )
         return _flatten_features(new_batch)
 
-    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc)
+    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc,)
 
 
 

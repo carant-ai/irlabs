@@ -18,8 +18,9 @@ class IRModule(LightningModule):
         loss_fn: nn.Module,
         optimizer_name: str,
         weight_decay: float,
-        warmup_step: int,
+        warmup_step: int | float,
         optimizer_hparams: Dict[str, Any],
+
     ):
         super().__init__()
         self.model = model
@@ -54,14 +55,12 @@ class IRModule(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        warm_up = self.warm_up
-        if isinstance(self.warmup_step, float):
-            warm_up = self.trainer.estimated_stepping_batches * self.warmup_step
+        warmup_step = self.warmup_step
+        if isinstance(warmup_step, float):
+            warmup_step = self.trainer.estimated_stepping_batches * self.warmup_step
 
         optimizer = optimizer_factory(
             self.model, self.optimizer_name, self.optimizer_hparams
         )
-        scheduler = LinearDecayWithWarmupScheduler(
-            optimizer, self.warmup_step, self.trainer.estimated_stepping_batches
-        )
-        return [optimizer], [scheduler]
+
+        return [optimizer]

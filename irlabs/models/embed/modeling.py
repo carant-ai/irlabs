@@ -18,7 +18,7 @@ class BertForEmbedding(BertPreTrainedModel):
     def __init__(
         self,
         config: BertConfig,
-        ir_config: Optional[IRConfig],
+        ir_config: Optional[IRConfig] = None,
     ):
         super().__init__(config)
         ir_config_dict = {} if not ir_config else ir_config.to_dict()

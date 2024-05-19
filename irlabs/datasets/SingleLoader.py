@@ -126,9 +126,14 @@ class SingleLoaderModule(LightningDataModule):
         return DataLoader(self.train_ds, **data_loader_params)  # type: ignore
 
     def val_dataloader(self):
-        data_collator = SingleLoaderCollator(
-            self.features, self.labels, self.tokenizer.model_input_names
-        )
+        if self.tokenize_before:
+            data_collator = SingleLoaderCollator(
+                self.features, self.labels, self.tokenizer.model_input_names
+            )
+        else:
+            data_collator = SingleLoaderCollatorWithTokenize(
+                self.features, self.labels, self.tokenizer, self.config
+            )
         data_loader_params = {
             "num_workers": self.num_workers,
             "batch_size": self.batch_size,

@@ -9,6 +9,7 @@ from transformers import (
     is_ray_available,
 )
 from irlabs.models.config import IRConfig
+from irlabs.models.utils import combine_dict
 from .utils import CLSPooler, build_pooling
 import logging
 logger = logging.getLogger(__name__)
@@ -24,10 +25,7 @@ class BertForEmbedding(BertPreTrainedModel):
     ):
         super().__init__(config)
         ir_config_dict = {} if not ir_config else ir_config.to_dict()
-        print(f"DEBUGPRINT[6]: modeling.py:25: config={config}")
-        print(f"DEBUGPRINT[7]: modeling.py:27: ir_config_dict={ir_config_dict}")
         
-
         if not ir_config and hasattr(config, "is_ir_config"):
             logger.info("ir_config parameter is None and config is an instance of IRConfig.")
         elif not ir_config and not hasattr(config, "is_ir_config"):
@@ -38,8 +36,7 @@ class BertForEmbedding(BertPreTrainedModel):
             ir_config_dict = ir_config.to_dict()
 
         self.bert = BertModel(config, add_pooling_layer=False)
-        self.config = IRConfig.from_dict(config.to_dict(), **ir_config_dict)
-        print(f"DEBUGPRINT[4]: modeling.py:38: self.config={self.config}")
+        self.config = IRConfig.from_dict(combine_dict(config.to_dict(), ir_config_dict))
         self.pooler = build_pooling(self.config)
         self.post_init()
 

@@ -2,7 +2,11 @@ from transformers import PretrainedConfig
 from irlabs.models.config import IRConfig
 import torch
 from torch import nn
-# i'll improve it later with enum 
+import logging
+
+# i'll improve it later with enum
+logger = logging.getLogger(__name__)
+
 
 class CLSPooler(nn.Module):
     def __init__(self):
@@ -11,12 +15,9 @@ class CLSPooler(nn.Module):
     def forward(self, inp, attention_mask):
         return inp.last_hidden_state[:, 0, :]
 
-def build_pooling(c: PretrainedConfig): 
+
+def build_pooling(c: PretrainedConfig):
     if c.ir_embed_pooling_strategy == "cls":
         return CLSPooler()
-    else: 
+    else:
         return CLSPooler()
-
-
-
-

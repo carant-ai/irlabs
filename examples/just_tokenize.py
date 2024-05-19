@@ -12,7 +12,6 @@ import os
 def main():
     config = IRConfig(ir_q_prefix="babidong:")
     model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1", config)
-    model.push_to_hub("carlesoctav/coba-pth-5")
     dataset = load_dataset(
         "csv",
         data_files="/mnt/disks/persist/yourfile.tsv",
@@ -27,18 +26,16 @@ def main():
 
     data_module = SingleLoaderModule(
         dataset,
-        "/mnt/disks/persist/loaded/new",
+        "/mnt/disks/persist/.cache/indo_40M",
         model.config,
         ["positive", "anchor", "negative"],
         ["positive_score", "negative_score"],
         val_ratio=0.01,
-        num_workers = 16
+        num_workers = 8,
+        num_procs = 16,
     )
 
     data_module.prepare_data()
-
-
-
 
 if __name__ == "__main__":
     main()

@@ -36,6 +36,7 @@ class SingleLoaderModule(LightningDataModule):
         num_workers: int = 8,
         pin_memory: bool = True,
         persistent_workers: bool = False,
+        num_procs: int = 4, 
     ):
         super().__init__()
         self.datasets = datasets
@@ -52,13 +53,13 @@ class SingleLoaderModule(LightningDataModule):
         self.num_workers = num_workers
         self.pin_memory = pin_memory
         self.persistent_workers = persistent_workers
+        self.num_procs = num_procs
 
     def prepare_data(self) -> None:
         datasets = self.datasets
 
-        if os.path.exists(self.local_save_file):
-            logger.info(f"{self.local_save_file} exists, skipping prepare_data")
-            return 
+        # if os.path.exists(self.local_save_file):
+        #     logger.info(f"cache file exist on {self.local_save_file}, loading cache file instead of preparing data")
 
         if self.config is None:
             logger.warning("config params must present")
@@ -71,7 +72,7 @@ class SingleLoaderModule(LightningDataModule):
             datasets = concatenate_datasets([datasets[idx] for idx in datasets.keys()])
 
         datasets = preprocess_tokenize_single_loader(
-            datasets, self.config, self.features, self.num_workers, self.local_save_file
+            datasets, self.config, self.features, self.num_procs, self.local_save_file
         )
 
     def setup(self, stage: str) -> None:

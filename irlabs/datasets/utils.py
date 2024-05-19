@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, List
 
 
 def preprocess_tokenize_single_loader(
-    datasets: Dataset | DatasetDict,
+    datasets: Dataset,
     config: PretrainedConfig,
     features: List[str],
     num_proc: int,
@@ -21,14 +21,14 @@ def preprocess_tokenize_single_loader(
         for feature in features:
             new_batch[feature] = tokenizer(
                 batch[feature],
-                max_length = config.max_d_length,
+                max_length = config.ir_max_d_length,
                 padding = "max_length",
                 truncation = True, 
                 return_tensors = "pt"
             )
         return _flatten_features(new_batch)
 
-    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc, cache_file_name= save_file)
+    return datasets.map(tokenize, **mapping_kwargs, remove_columns= features, num_proc = num_proc)
 
 
 

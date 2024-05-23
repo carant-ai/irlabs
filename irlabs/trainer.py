@@ -44,7 +44,10 @@ class IRModule(LightningModule):
 
     def training_step(self, *args: Any, **kwargs: Any):
         batch, batch_idx = args
+        features, labels = batch
+
         loss = self.step(batch, batch_idx, mode="train")
+
         self.log("train_loss", loss, on_step=True, on_epoch=True)
         return loss
 

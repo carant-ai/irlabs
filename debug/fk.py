@@ -11,11 +11,12 @@ from datasets import load_dataset, Dataset
 from lightning import Trainer
 import os
 import wandb
+from tqdm import tqdm
+import torch
 
 
 def main():
 
-    wandb.login()
     model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1")
     dataset = load_dataset(
         "csv",
@@ -35,31 +36,26 @@ def main():
         model.config,
         ["positive", "anchor", "negative"],
         ["positive_score", "negative_score"],
+        False,
         val_ratio=0.01,
-        num_workers= 32,
-        drop_last= True,
+        shuffle= False,
     )
 
-    optimizers_hparams = {
-        "lr": 2e-5,
-    }
+    data_module.prepare_data()
+    data_module.setup(stage = "fit")
+    key = ["positive_score", "negative_score"]
+    for features, labels in tqdm(data_module.train_dataloader()):
+        print(f"DEBUGPRINT[1]: fk.py:48: features={features}")
+        print(f"DEBUGPRINT[2]: fk.py:48: labels={labels}")
+        diff = labels[key[0]] - labels[key[1]]
+        assert diff.shape == (32,)
 
-    ir_module = IRModule(
-        model=model,
-        loss_fn=MarginMSE(),
-        optimizer_name="Adam",
-        weight_decay=5e-4,
-        warmup_step=0.1,
-        optimizer_hparams=optimizers_hparams,
-    )
+    for features, labels in tqdm(data_module.val_dataloader()):
+        diff = labels[key[0]] - labels[key[1]]
+        assert diff.shape == (32,)
 
-    logger = WandbLogger("indo-embed-40M", save_dir = "/mnt/disks/persist/train_artifact/", log_model = "all")
-    early_stopping = EarlyStopping(monitor= "val_loss", log_rank_zero_only= True, min_delta = 1e-4)
-    model_checkpoint = ModelCheckpoint(monitor = "val_loss", mode = "min")
-    lr_monitor = LearningRateMonitor("step")
-    trainer = Trainer(callbacks=[early_stopping, model_checkpoint, lr_monitor], logger = logger, max_epochs = 4)
-    trainer.fit(ir_module, data_module)
 
 
 if __name__ == "__main__":
     main()
+

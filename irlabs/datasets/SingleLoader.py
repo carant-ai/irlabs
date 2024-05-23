@@ -103,7 +103,7 @@ class SingleLoaderModule(LightningDataModule):
             self.datasets.set_format("torch", columns=formatted_columns)
 
         if stage == "fit":
-            self.datasets = self.datasets.train_test_split(test_size=self.val_ratio) #type:ignore
+            self.datasets = self.datasets.train_test_split(test_size=self.val_ratio, shuffle= self.shuffle) #type:ignore
             self.train_ds = self.datasets["train"]
             self.val_ds = self.datasets["test"]
 
@@ -119,9 +119,11 @@ class SingleLoaderModule(LightningDataModule):
         data_loader_params = {
             "num_workers": self.num_workers,
             "batch_size": self.batch_size,
+            "shuffle": self.shuffle,
             "pin_memory": self.pin_memory,
             "persistent_workers": self.persistent_workers,
             "collate_fn": data_collator,
+            "drop_last": self.drop_last
         }
         return DataLoader(self.train_ds, **data_loader_params)  # type: ignore
 
@@ -137,8 +139,10 @@ class SingleLoaderModule(LightningDataModule):
         data_loader_params = {
             "num_workers": self.num_workers,
             "batch_size": self.batch_size,
+            "shuffle": self.shuffle,
             "pin_memory": self.pin_memory,
             "persistent_workers": self.persistent_workers,
             "collate_fn": data_collator,
+            "drop_last": self.drop_last
         }
         return DataLoader(self.val_ds, **data_loader_params)  # type: ignore

@@ -1,6 +1,3 @@
-from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint
-from lightning.pytorch.loggers import WandbLogger
-from torch._prims_common import infer_size_shapes
 from irlabs.models import IRConfig, BertForEmbedding
 from transformers import AutoTokenizer
 from irlabs.trainer import IRModule
@@ -10,19 +7,16 @@ from torch import nn
 from datasets import load_dataset, Dataset
 from lightning import Trainer
 import os
-import wandb
-from tqdm import tqdm
-import torch
 
 
 def main():
-
-    model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1")
+    config = IRConfig()
+    model = BertForEmbedding.from_pretrained("indobenchmark/indobert-base-p1", config)
     dataset = load_dataset(
         "csv",
         data_files="/mnt/disks/persist/yourfile.tsv",
         sep="\t",
-        split="train[:10%]",
+        split="train",
     )
 
     if not isinstance(model, BertForEmbedding):
@@ -32,28 +26,23 @@ def main():
 
     data_module = SingleLoaderModule(
         dataset,
-        "/mnt/disks/persist/loaded/new",
+        "/mnt/disks/persist/.cache/indo_40M",
         model.config,
         ["positive", "anchor", "negative"],
         ["positive_score", "negative_score"],
-        False,
+        tokenize_before = False,
         val_ratio=0.01,
-        shuffle= False,
+        num_workers=8,
+        batch_size = 3,
+        num_procs=16,
     )
 
     data_module.prepare_data()
     data_module.setup(stage = "fit")
-    key = ["positive_score", "negative_score"]
-    for features, labels in tqdm(data_module.train_dataloader()):
-        diff = labels[key[0]] - labels[key[1]]
-        assert diff.shape == (32,)
-
-    for features, labels in tqdm(data_module.val_dataloader()):
-        diff = labels[key[0]] - labels[key[1]]
-        assert diff.shape == (32,)
-
+    for batch in data_module.train_dataloader():
+        print(f"DEBUGPRINT[1]: try_tokenize_inbatch.py:42: batch={batch}")
+        break
 
 
 if __name__ == "__main__":
     main()
-

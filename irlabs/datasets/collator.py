@@ -49,14 +49,13 @@ class SingleLoaderCollatorWithTokenize:
         new_batch_labels = {}
 
         for feat in self.valid_features:
-            tokenized = self.tokenizer(
+            new_batch[feat] = self.tokenizer(
                 [row[feat] for row in batch],
                 max_length = self.config.ir_max_d_length,
                 padding = "max_length",
                 truncation = True, 
                 return_tensors = "pt"
             )
-            new_batch[feat] = tokenized
 
         if self.valid_labels is None:
             return new_batch, None

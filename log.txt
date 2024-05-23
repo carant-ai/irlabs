@@ -1,0 +1,133 @@
+(.venv) carlesoctav@t1v-n-f6bd7871-w-0:~/personal/irlabs$ python -m examples.train_embed_margin
+wandb: Currently logged in as: carlesoctav. Use `wandb login --relogin` to force relogin
+WARNING:root:PJRT is now the default runtime. For more information, see https://github.com/pytorch/xla/blob/master/docs/pjrt.md
+WARNING:root:libtpu.so and TPU device found. Setting PJRT_DEVICE=TPU.
+GPU available: False, used: False
+TPU available: True, using: 4 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+wandb: Tracking run with wandb version 0.17.0
+wandb: Run data is saved locally in /mnt/disks/persist/train_artifact/wandb/run-20240523_110311-rfz529um
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run indo-embed-40M
+wandb: ⭐️ View project at https://wandb.ai/carlesoctav/lightning_logs
+wandb: 🚀 View run at https://wandb.ai/carlesoctav/lightning_logs/runs/rfz529um
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1716462192.786803  356670 pjrt_api.cc:100] GetPjrtApi was found for tpu at /home/carlesoctav/personal/irlabs/.venv/lib/python3.10/site-packages/libtpu/libtpu.so
+I0000 00:00:1716462192.786901  356670 pjrt_api.cc:79] PJRT_Api is set for device type tpu
+I0000 00:00:1716462192.786909  356670 pjrt_api.cc:146] The PJRT plugin has PJRT API version 0.46. The framework PJRT API version is 0.46.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1716462192.787066  356676 pjrt_api.cc:100] GetPjrtApi was found for tpu at /home/carlesoctav/personal/irlabs/.venv/lib/python3.10/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1716462192.787086  356672 pjrt_api.cc:100] GetPjrtApi was found for tpu at /home/carlesoctav/personal/irlabs/.venv/lib/python3.10/site-packages/libtpu/libtpu.so
+I0000 00:00:1716462192.787159  356672 pjrt_api.cc:79] PJRT_Api is set for device type tpu
+I0000 00:00:1716462192.787160  356676 pjrt_api.cc:79] PJRT_Api is set for device type tpu
+I0000 00:00:1716462192.787168  356672 pjrt_api.cc:146] The PJRT plugin has PJRT API version 0.46. The framework PJRT API version is 0.46.
+I0000 00:00:1716462192.787169  356676 pjrt_api.cc:146] The PJRT plugin has PJRT API version 0.46. The framework PJRT API version is 0.46.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1716462192.803169  356674 pjrt_api.cc:100] GetPjrtApi was found for tpu at /home/carlesoctav/personal/irlabs/.venv/lib/python3.10/site-packages/libtpu/libtpu.so
+I0000 00:00:1716462192.803283  356674 pjrt_api.cc:79] PJRT_Api is set for device type tpu
+I0000 00:00:1716462192.803292  356674 pjrt_api.cc:146] The PJRT plugin has PJRT API version 0.46. The framework PJRT API version is 0.46.
+Loading `train_dataloader` to estimate number of stepping batches.
+
+  | Name    | Type             | Params
+---------------------------------------------
+0 | model   | BertForEmbedding | 123 M
+1 | loss_fn | MarginMSE        | 0
+---------------------------------------------
+123 M     Trainable params
+0         Non-trainable params
+123 M     Total params
+495.403   Total estimated model params size (MB)
+Epoch 0:  48%|████████████████████████████████▍                                  | 14871/30767 [3:06:00<3:18:50,  1.33it/s, v_num=29um]DEBUGPRINT[3]: MarginMSE.py:51: features={'positive': {'input_ids': tensor([[    2,   111, 30067,  ...,     0,     0,     0],
+        [    2,  3462,   173,  ...,     0,     0,     0],
+        [    2, 20304, 14638,  ...,     0,     0,     0],
+        ...,
+        [    2,  7629,    62,  ...,     0,     0,     0],
+        [    2, 26288, 20985,  ...,     0,     0,     0],
+        [    2,  7386, 13313,  ...,     0,     0,     0]], device='xla:0'), 'token_type_ids': tensor([[0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        ...,
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0]], device='xla:0'), 'attention_mask': tensor([[1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        ...,
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0]], device='xla:0')}, 'anchor': {'input_ids': tensor([[    2,  2609,   717,  ...,     0,     0,     0],
+        [    2, 12712,   508,  ...,     0,     0,     0],
+        [    2,  1545, 20304,  ...,     0,     0,     0],
+        ...,
+        [    2,  3625,    62,  ...,     0,     0,     0],
+        [    2,  1545, 30470,  ...,     0,     0,     0],
+        [    2,  2609,  1162,  ...,     0,     0,     0]], device='xla:0'), 'token_type_ids': tensor([[0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        ...,
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0]], device='xla:0'), 'attention_mask': tensor([[1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        ...,
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0]], device='xla:0')}, 'negative': {'input_ids': tensor([[    2,   111, 30067,  ...,     0,     0,     0],
+        [    2,  3462,   173,  ...,     0,     0,     0],
+        [    2, 20304, 14638,  ...,     0,     0,     0],
+        ...,
+        [    2,  7629,    62,  ...,     0,     0,     0],
+        [    2, 26288, 20985,  ...,     0,     0,     0],
+        [    2,  7386, 13313,  ...,     0,     0,     0]], device='xla:0'), 'token_type_ids': tensor([[0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        ...,
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0]], device='xla:0'), 'attention_mask': tensor([[1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        ...,
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0],
+        [1, 1, 1,  ..., 0, 0, 0]], device='xla:0')}}
+DEBUGPRINT[2]: MarginMSE.py:51: labels={'positive_score': tensor([[    2,  8168,   717,  ...,     0,     0,     0],
+        [    2,  1946,    34,  ...,     0,     0,     0],
+        [    2, 20304,   154,  ...,     0,     0,     0],
+        ...,
+        [    2,   991,  2063,  ...,     0,     0,     0],
+        [    2,   564,  9071,  ...,     0,     0,     0],
+        [    2,  1162,  8040,  ...,     0,     0,     0]], device='xla:0'), 'negative_score': tensor([[0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        ...,
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0]], device='xla:0')}
+Epoch 0:  48%|████████████████████████████████▍                                  | 14878/30767 [3:06:05<3:18:44,  1.33it/s, v_num=29um]DEBUGPRINT[1]: MarginMSE.py:51: reps={'positive': tensor([[ 0.0265,  0.9577,  0.0898,  ...,  0.8346, -0.4067, -1.0466],
+        [-0.0904,  1.2484,  0.0611,  ...,  0.9801, -0.5718, -0.8103],
+        [-0.2394,  1.1456,  0.5732,  ...,  0.8597, -0.3208, -0.7366],
+        ...,
+        [-0.1161,  1.0058,  0.3645,  ...,  0.9923, -0.2746, -1.0622],
+        [-0.3166,  0.9723,  0.6608,  ...,  0.7433, -0.3868, -0.7535],
+        [-0.1511,  0.8765,  0.2410,  ...,  1.0254, -0.2518, -0.7948]],
+       device='xla:0', grad_fn=<SliceBackward0>), 'anchor': tensor([[ 0.1005,  0.6598,  0.2447,  ...,  1.1461, -0.1709, -0.8822],
+        [-0.3064,  1.4108,  0.0069,  ...,  1.1755, -0.7733, -0.6844],
+        [-0.3296,  0.8981,  0.7869,  ...,  0.7897, -0.2308, -0.7832],
+        ...,
+        [-0.0976,  1.0195,  0.5749,  ...,  1.2982,  0.0787, -1.2210],
+        [ 0.1206,  1.3039,  0.2467,  ...,  0.9702, -0.6533, -0.6281],
+        [-0.0218,  0.6742,  0.3660,  ...,  0.9302, -0.1792, -0.7700]],
+       device='xla:0', grad_fn=<SliceBackward0>), 'negative': tensor([[ 0.0265,  0.9577,  0.0898,  ...,  0.8346, -0.4067, -1.0466],
+        [-0.0904,  1.2484,  0.0611,  ...,  0.9801, -0.5718, -0.8103],
+        [-0.2394,  1.1456,  0.5732,  ...,  0.8597, -0.3208, -0.7366],
+        ...,
+        [-0.1161,  1.0058,  0.3645,  ...,  0.9923, -0.2746, -1.0622],
+        [-0.3166,  0.9723,  0.6608,  ...,  0.7433, -0.3868, -0.7535],
+        [-0.1511,  0.8765,  0.2410,  ...,  1.0254, -0.2518, -0.7948]],
+       device='xla:0', grad_fn=<SliceBackward0>)}
+/home/carlesoctav/personal/irlabs/.venv/lib/python3.10/site-packages/torch/nn/modules/loss.py:535: UserWarning: Using a target size (torch.Size([32, 256])) that is different to the input size (torch.Size([32])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+

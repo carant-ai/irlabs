@@ -59,6 +59,15 @@ class SingleLoaderModule(LightningDataModule):
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.config.name_or_path)  # type: ignore
 
+        if self.tokenize_before:
+            self.data_collator = SingleLoaderCollator(
+                self.features, self.labels, self.tokenizer.model_input_names
+            )
+        else:
+            self.data_collator = SingleLoaderCollatorWithTokenize(
+                self.features, self.labels, self.tokenizer, self.config
+            )
+
         if isinstance(self.datasets, DatasetDict):
             logger.info(
                 "we'll try to concatenate dataset, because we found it's a DatasetDict Type"
@@ -108,41 +117,26 @@ class SingleLoaderModule(LightningDataModule):
             self.val_ds = self.datasets["test"]
 
     def train_dataloader(self):
-        if self.tokenize_before:
-            data_collator = SingleLoaderCollator(
-                self.features, self.labels, self.tokenizer.model_input_names
-            )
-        else:
-            data_collator = SingleLoaderCollatorWithTokenize(
-                self.features, self.labels, self.tokenizer, self.config
-            )
         data_loader_params = {
             "num_workers": self.num_workers,
             "batch_size": self.batch_size,
             "shuffle": self.shuffle,
             "pin_memory": self.pin_memory,
             "persistent_workers": self.persistent_workers,
-            "collate_fn": data_collator,
+            "collate_fn": self.data_collator,
             "drop_last": self.drop_last
         }
+        print("babi")
         return DataLoader(self.train_ds, **data_loader_params)  # type: ignore
 
     def val_dataloader(self):
-        if self.tokenize_before:
-            data_collator = SingleLoaderCollator(
-                self.features, self.labels, self.tokenizer.model_input_names
-            )
-        else:
-            data_collator = SingleLoaderCollatorWithTokenize(
-                self.features, self.labels, self.tokenizer, self.config
-            )
         data_loader_params = {
             "num_workers": self.num_workers,
             "batch_size": self.batch_size,
             "shuffle": self.shuffle,
             "pin_memory": self.pin_memory,
             "persistent_workers": self.persistent_workers,
-            "collate_fn": data_collator,
+            "collate_fn": self.data_collator,
             "drop_last": self.drop_last
         }
         return DataLoader(self.val_ds, **data_loader_params)  # type: ignore

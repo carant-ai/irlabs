@@ -39,12 +39,14 @@ def main():
         False,
         val_ratio=0.01,
         shuffle= False,
+        batch_size = 16,
     )
 
     data_module.prepare_data()
     data_module.setup(stage = "fit")
     key = ["positive_score", "negative_score"]
     for features, labels in tqdm(data_module.train_dataloader()):
+        print(f"DEBUGPRINT[1]: loader.py:47: features={features}")
         diff = labels[key[0]] - labels[key[1]]
         assert diff.shape == (32,)
 

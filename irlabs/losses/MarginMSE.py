@@ -25,18 +25,25 @@ class MarginMSE(nn.Module):
             }
         self.mse_loss = nn.MSELoss()
 
-    def forward(self, features:Dict[str, Tensor], labels: Dict[str, Tensor]):
+    def forward(
+        self,
+        reps: Dict[str, Tensor],
+        labels: Dict[str, Tensor],
+    ):
         pos_score = (
-            features[self.features_mapping["anchor"]]
-            * features[self.features_mapping["positive"]]
+            reps[self.features_mapping["anchor"]]
+            * reps[self.features_mapping["positive"]]
         ).sum(dim=-1)
 
         neg_score = (
-            features[self.features_mapping["anchor"]]
-            * features[self.features_mapping["negative"]]
+            reps[self.features_mapping["anchor"]]
+            * reps[self.features_mapping["negative"]]
         ).sum(dim=-1)
 
         pred_diff = pos_score - neg_score
-        labels_diff = labels[self.label_mapping["positive_score"]] - labels[self.label_mapping["negative_score"]]
+        labels_diff = (
+            labels[self.label_mapping["positive_score"]]
+            - labels[self.label_mapping["negative_score"]]
+        )
 
         return self.mse_loss(pred_diff, labels_diff)

@@ -11,13 +11,16 @@ class IRConfig(PretrainedConfig):
         ir_d_prefix: str = "", 
         embed_pooling_strategy: Literal["mean", "max", "cls", None]  = "cls",
         colbert_embedding_size: int = 128,
+        normalize: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
+        self.is_ir_config = True
         self.ir_max_q_length = ir_max_q_length
         self.ir_max_d_length = ir_max_d_length
         self.ir_q_prefix = ir_q_prefix
         self.ir_d_prefix = ir_d_prefix
+        self.normalize = normalize
 
         if model_type == "embed":
             self.embed_pooling_strategy = embed_pooling_strategy

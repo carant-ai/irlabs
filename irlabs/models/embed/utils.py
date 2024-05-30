@@ -3,6 +3,7 @@ from irlabs.models.config import IRConfig
 import torch
 from torch import nn
 import logging
+from typing import List
 
 # i'll improve it later with enum
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ def embed_scoring(
     documents: List[str],
     batch_size: int = 4,
 ):
-     fass
+     pass
 
 
 class CLSPooler(nn.Module):

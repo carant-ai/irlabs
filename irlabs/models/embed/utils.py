@@ -1,4 +1,4 @@
-from transformers import PretrainedConfig
+from transformers import PreTrainedModel, PreTrainedTokenizerBase, PretrainedConfig
 from irlabs.models.config import IRConfig
 import torch
 from torch import nn
@@ -6,6 +6,16 @@ import logging
 
 # i'll improve it later with enum
 logger = logging.getLogger(__name__)
+
+
+def embed_scoring(
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizerBase,
+    queries: List[str],
+    documents: List[str],
+    batch_size: int = 4,
+):
+     fass
 
 
 class CLSPooler(nn.Module):

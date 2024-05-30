@@ -2,7 +2,7 @@ from irlabs.models import IRConfig, BertForEmbedding
 from transformers import AutoTokenizer
 from irlabs.trainer import IRModule
 from irlabs.losses.MarginMSE import MarginMSE
-from irlabs.datasets.SingleLoader import SingleLoaderModule
+from irlabs.datasets.SingleLoader import HFSingleLoaderModule
 from torch import nn
 from datasets import load_dataset, Dataset
 from lightning import Trainer
@@ -24,7 +24,7 @@ def main():
     if not isinstance(dataset, Dataset):
         raise
 
-    data_module = SingleLoaderModule(
+    data_module = HFSingleLoaderModule(
         dataset,
         "/mnt/disks/persist/.cache/indo_40M",
         model.config,

@@ -4,6 +4,7 @@ from transformers import (
     BertConfig,
     BertModel,
     BertPreTrainedModel,
+    BertModelFor
 )
 from irlabs.models.config import IRConfig
 from irlabs.models.utils import combine_dict
@@ -12,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class BertForEmbedding(BertPreTrainedModel):
+class BertForColbert(BertPreTrainedModel):
     config_class = BertConfig
 
     def __init__(
@@ -27,7 +28,7 @@ class BertForEmbedding(BertPreTrainedModel):
             logger.info("ir_config parameter is None and config is an instance of IRConfig.")
         elif not ir_config and not hasattr(config, "is_ir_config"):
             logger.info("ir_config parameter is None and config is not an instance of IRConfig. Loading default IRConfig.")
-            ir_config_dict = IRConfig("embed").to_dict()
+            ir_config_dict = IRConfig("colbert").to_dict()
         elif ir_config and hasattr(config, "is_ir_config"):
             logger.info("ir_config is not None and config is an instance of IRConfig. Replacing older IRConfig related attributes from ir_config.")
             ir_config_dict = ir_config.to_dict()

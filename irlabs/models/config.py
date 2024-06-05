@@ -4,7 +4,7 @@ from typing import Literal
 class IRConfig(PretrainedConfig):
     def __init__(
         self,
-        model_type: Literal["embed", "colbert", "splade"],
+        ir_model_type: Literal["embed", "colbert", "splade", None] = None,
         ir_max_q_length: int = 256,
         ir_max_d_length: int = 256,
         ir_q_prefix: str = "",
@@ -15,6 +15,7 @@ class IRConfig(PretrainedConfig):
         **kwargs,
     ):
         super().__init__(**kwargs)
+        self.ir_model_type = ir_model_type
         self.is_ir_config = True
         self.ir_max_q_length = ir_max_q_length
         self.ir_max_d_length = ir_max_d_length
@@ -22,7 +23,7 @@ class IRConfig(PretrainedConfig):
         self.ir_d_prefix = ir_d_prefix
         self.normalize = normalize
 
-        if model_type == "embed":
+        if self.ir_model_type == "embed":
             self.embed_pooling_strategy = embed_pooling_strategy
-        elif model_type == "colbert":
+        elif self.ir_model_type == "colbert":
             self.colbert_embedding_size = colbert_embedding_size

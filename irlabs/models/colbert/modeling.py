@@ -12,7 +12,7 @@ from torch.nn import functional as F
 import logging
 
 logger = logging.getLogger(__name__)
-from transformers.modeling_outputs import BaseModelOutputWithCrossAttentions
+from transformers.modeling_outputs import BaseModelOutputWithCrossAttentions, BaseModelOutputWithPoolingAndCrossAttentions
 
 
 class BertForColbert(BertPreTrainedModel):
@@ -35,6 +35,8 @@ class BertForColbert(BertPreTrainedModel):
                 "ir_config parameter is None and config is not an instance of IRConfig. Loading default IRConfig."
             )
             ir_config_dict = IRConfig("colbert").to_dict()
+            print("babi")
+
         elif ir_config and hasattr(config, "is_ir_config"):
             logger.info(
                 "ir_config is not None and config is an instance of IRConfig. Replacing older IRConfig related attributes from ir_config."
@@ -53,15 +55,14 @@ class BertForColbert(BertPreTrainedModel):
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
         token_type_ids: torch.Tensor,
-        position_ids: torch.Tensor,
         **kwargs,
-    ) -> Optional[torch.Tensor]:
+    ) -> torch.Tensor:
 
         output = self.bert(
-            input_ids, attention_mask, token_type_ids, position_ids, **kwargs
+            input_ids, attention_mask, token_type_ids, **kwargs
         )
 
-        assert isinstance(output, BaseModelOutputWithCrossAttentions)
+        assert isinstance(output, BaseModelOutputWithPoolingAndCrossAttentions)
 
         return (
             F.normalize(

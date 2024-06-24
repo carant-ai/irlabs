@@ -1,50 +1,28 @@
 from typing import Optional
 import torch
-from transformers import (
-    BertConfig,
-    BertModel,
-    BertPreTrainedModel,
-)
-from irlabs.models.config import IRConfig
-from irlabs.models.utils import combine_dict
+import transformers
+from irlabs.models.config import IRConfig, resolve_config
 from torch import nn
 from torch.nn import functional as F
 import logging
 
 logger = logging.getLogger(__name__)
-from transformers.modeling_outputs import BaseModelOutputWithCrossAttentions, BaseModelOutputWithPoolingAndCrossAttentions
+import transformers.modeling_outputs
 
 
-class BertForColbert(BertPreTrainedModel):
-    config_class = BertConfig
+class BertForColbert(transformers.BertPreTrainedModel):
+    config_class = transformers.BertConfig
 
     def __init__(
         self,
-        config: BertConfig,
+        config: transformers.BertConfig,
         ir_config: Optional[IRConfig] = None,
     ):
         super().__init__(config)
-        ir_config_dict = {} if not ir_config else ir_config.to_dict()
+        combined_config = resolve_config(ir_config, config, "colbert")
 
-        if not ir_config and hasattr(config, "is_ir_config"):
-            logger.info(
-                "ir_config parameter is None and config is an instance of IRConfig."
-            )
-        elif not ir_config and not hasattr(config, "is_ir_config"):
-            logger.info(
-                "ir_config parameter is None and config is not an instance of IRConfig. Loading default IRConfig."
-            )
-            ir_config_dict = IRConfig("colbert").to_dict()
-            print("babi")
-
-        elif ir_config and hasattr(config, "is_ir_config"):
-            logger.info(
-                "ir_config is not None and config is an instance of IRConfig. Replacing older IRConfig related attributes from ir_config."
-            )
-            ir_config_dict = ir_config.to_dict()
-
-        self.bert = BertModel(config, add_pooling_layer=False)
-        self.config = IRConfig.from_dict(combine_dict(config.to_dict(), ir_config_dict))
+        self.bert = transformers.BertModel(config, add_pooling_layer=False)
+        self.config = IRConfig.from_dict(combined_config)
         self.linear = nn.Linear(
             self.config.hidden_size, self.config.colbert_embedding_size, bias=False
         )
@@ -58,11 +36,13 @@ class BertForColbert(BertPreTrainedModel):
         **kwargs,
     ) -> torch.Tensor:
 
-        output = self.bert(
-            input_ids, attention_mask, token_type_ids, **kwargs
+        output = self.bert(input_ids, attention_mask, token_type_ids, **kwargs)
+        assert isinstance(
+            output,
+            transformers.modeling_outputs.BaseModelOutputWithPoolingAndCrossAttentions,
+        ), "Expected 'output' to be of type 'transformers.modeling_outputs.BaseModelOutputWithPoolingAndCrossAttentions', but got '{}' instead.".format(
+            type(output).__name__
         )
-
-        assert isinstance(output, BaseModelOutputWithPoolingAndCrossAttentions)
 
         return (
             F.normalize(

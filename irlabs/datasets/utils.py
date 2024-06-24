@@ -37,5 +37,4 @@ def _flatten_features(features):
     for feat in features:
         for k, v in features[feat].items():
             flattened_features[f"{feat}_{k}"] = v
-
     return flattened_features

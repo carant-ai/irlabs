@@ -1,39 +1,26 @@
 from typing import Optional
 import torch
-from transformers import (
-    BertConfig,
-    BertModel,
-    BertPreTrainedModel,
-)
-from irlabs.models.config import IRConfig
-from irlabs.models.utils import combine_dict
-from .utils import CLSPooler, build_pooling
+import transformers
+from irlabs.models.config import IRConfig, resolve_config
+from .utils import build_pooling
 import logging
+import transformers.modeling_outputs
+
 logger = logging.getLogger(__name__)
 
 
-class BertForEmbedding(BertPreTrainedModel):
-    config_class = BertConfig
+class BertForEmbedding(transformers.BertPreTrainedModel):
+    config_class = transformers.BertConfig
 
     def __init__(
         self,
-        config: BertConfig,
+        config: transformers.BertConfig,
         ir_config: Optional[IRConfig] = None,
     ):
         super().__init__(config)
-        ir_config_dict = {} if not ir_config else ir_config.to_dict()
-        
-        if not ir_config and hasattr(config, "is_ir_config"):
-            logger.info("ir_config parameter is None and config is an instance of IRConfig.")
-        elif not ir_config and not hasattr(config, "is_ir_config"):
-            logger.info("ir_config parameter is None and config is not an instance of IRConfig. Loading default IRConfig.")
-            ir_config_dict = IRConfig("embed").to_dict()
-        elif ir_config and hasattr(config, "is_ir_config"):
-            logger.info("ir_config is not None and config is an instance of IRConfig. Replacing older IRConfig related attributes from ir_config.")
-            ir_config_dict = ir_config.to_dict()
-
-        self.bert = BertModel(config, add_pooling_layer=False)
-        self.config = IRConfig.from_dict(combine_dict(config.to_dict(), ir_config_dict))
+        combined_config = resolve_config(ir_config, config, "embed")
+        self.bert = transformers.BertModel(config, add_pooling_layer=False)
+        self.config = IRConfig.from_dict(combined_config)
         self.pooler = build_pooling(self.config)
         self.post_init()
 
@@ -46,5 +33,11 @@ class BertForEmbedding(BertPreTrainedModel):
     ) -> Optional[torch.Tensor]:
 
         output = self.bert(input_ids, attention_mask, token_type_ids, position_ids)
-        return self.pooler(output, attention_mask=attention_mask)
 
+        assert isinstance(
+            output,
+            transformers.modeling_outputs.BaseModelOutputWithPoolingAndCrossAttentions,
+        ), "Expected 'output' to be of type 'transformers.modeling_outputs.BaseModelOutputWithPoolingAndCrossAttentions', but got '{}' instead.".format(
+            type(output).__name__
+        )
+        return self.pooler(output, attention_mask=attention_mask)

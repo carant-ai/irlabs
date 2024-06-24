@@ -1,17 +1,25 @@
-from torch import nn, Tensor
 import torch
-from typing import Optional, Dict, Literal
+from torch import nn
+from typing import Callable, Optional, Dict, Literal
+from .utils import resolve_scoring_function
 
 
 class MarginMSE(nn.Module):
     def __init__(
         self,
-        # TODO: add scoring functin params
-        # scoring_function: Literal["cos_sim", "dot_sim"] = "cos_sim",
+        scoring_function: (
+            Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
+            | Literal["dot", "maxsim"]
+        ),
         features_mapping: Optional[Dict[str, str]] = None,
         labels_mapping: Optional[Dict[str, str]] = None,
     ):
         super().__init__()
+        if isinstance(scoring_function, str):
+            self.scoring_function = resolve_scoring_function(scoring_function)
+        else:
+            self.scoring_function = scoring_function
+
         if features_mapping is None:
             self.features_mapping = {
                 "anchor": "anchor",
@@ -27,18 +35,18 @@ class MarginMSE(nn.Module):
 
     def forward(
         self,
-        reps: Dict[str, Tensor],
-        labels: Dict[str, Tensor],
+        reps: Dict[str, torch.Tensor],
+        labels: Dict[str, torch.Tensor],
     ):
-        pos_score = (
-            reps[self.features_mapping["anchor"]]
-            * reps[self.features_mapping["positive"]]
-        ).sum(dim=-1)
+        pos_score = self.scoring_function(
+            reps[self.features_mapping["anchor"]],
+            reps[self.features_mapping["positive"]],
+        )
 
-        neg_score = (
-            reps[self.features_mapping["anchor"]]
-            * reps[self.features_mapping["negative"]]
-        ).sum(dim=-1)
+        neg_score = self.scoring_function(
+            reps[self.features_mapping["anchor"]],
+            reps[self.features_mapping["negative"]],
+        )
 
         pred_diff = pos_score - neg_score
         labels_diff = (

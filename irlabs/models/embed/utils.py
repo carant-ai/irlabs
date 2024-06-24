@@ -5,19 +5,7 @@ from torch import nn
 import logging
 from typing import List
 
-# i'll improve it later with enum
 logger = logging.getLogger(__name__)
-
-
-def embed_scoring(
-    model: PreTrainedModel,
-    tokenizer: PreTrainedTokenizerBase,
-    queries: List[str],
-    documents: List[str],
-    batch_size: int = 4,
-):
-     pass
-
 
 class CLSPooler(nn.Module):
     def __init__(self):
@@ -25,6 +13,7 @@ class CLSPooler(nn.Module):
 
     def forward(self, inp, attention_mask):
         return inp.last_hidden_state[:, 0, :]
+
 
 
 def build_pooling(c: PretrainedConfig):

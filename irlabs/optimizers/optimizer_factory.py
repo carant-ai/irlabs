@@ -33,8 +33,10 @@ def optimizer_factory(
     )
 
     if optimizer_name == "Adam":
-        return   optim.AdamW(parameters, **optimizer_hparams)
+        return optim.AdamW(parameters, **optimizer_hparams)
     elif optimizer_name == "SGD":
         return optim.SGD(parameters, **optimizer_hparams)
     else:
-        assert False, f'Unknown optimizer: "{optimizer_name}"'
+        assert (
+            False
+        ), f'Unknown optimizer name: "{optimizer_name}". Please choose either "Adam" or "SGD".'

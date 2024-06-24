@@ -8,6 +8,7 @@ def combine_dict(*args: Dict):
                 continue
 
             new_dict[key] = value
-
     return new_dict
 
+
+def resolve_config():

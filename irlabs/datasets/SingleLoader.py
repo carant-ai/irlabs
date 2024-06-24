@@ -1,8 +1,5 @@
 from lightning import LightningDataModule
 from torch.utils.data import DataLoader
-import os
-
-
 from typing import List, Any, Optional
 from datasets import (
     DatasetDict,
@@ -10,10 +7,7 @@ from datasets import (
     concatenate_datasets,
 )
 import logging
-from dataclasses import dataclass
-
 from transformers import AutoTokenizer, PretrainedConfig
-from .utils import preprocess_tokenize_single_loader
 from .collator import SingleLoaderCollatorWithTokenize
 
 logger = logging.getLogger(__name__)
@@ -26,8 +20,7 @@ class HFSingleLoaderModule(LightningDataModule):
         ir_config: PretrainedConfig,
         query_columns: List[str],
         document_columns: List[str],
-        labels: List[str] | None, #used for knowledge distill
-        tokenize_before: bool = False,
+        labels: List[str] | None,
         val_ratio: float = 0.01,
         data_collator: Optional[Any] = None,
         batch_size: int = 32,
@@ -55,18 +48,20 @@ class HFSingleLoaderModule(LightningDataModule):
         self.pin_memory = pin_memory
         self.persistent_workers = persistent_workers
         self.num_procs = num_procs
-        self.tokenize_before = tokenize_before
 
+        #TODO: maybe we should pass tokenizer type directlyi?
         self.tokenizer = AutoTokenizer.from_pretrained(self.ir_config.name_or_path)  # type: ignore
 
         self.data_collator = SingleLoaderCollatorWithTokenize(
-            self.query_columns,self.document_columns, self.labels, self.tokenizer, self.ir_config
+            self.query_columns,
+            self.document_columns,
+            self.labels,
+            self.tokenizer,
+            self.ir_config,
         )
 
         if isinstance(self.datasets, DatasetDict):
-            logger.info(
-                "we'll try to concatenate dataset, because we found it's a DatasetDict Type"
-            )
+            logger.info("Concatenating datasets because they are of type DatasetDict.")
             self.datasets = concatenate_datasets(
                 [self.datasets[idx] for idx in self.datasets.keys()]
             )
@@ -75,14 +70,11 @@ class HFSingleLoaderModule(LightningDataModule):
         return
 
     def setup(self, stage: str) -> None:
-        formatted_columns = (
-            self.query_columns+ self.document_columns 
-        )
+        formatted_columns = self.query_columns + self.document_columns
         formatted_columns += self.labels if self.labels is not None else []
         self.datasets.set_format("torch", columns=formatted_columns)
 
-        assert isinstance(self.datasets, Dataset)
-
+        assert isinstance(self.datasets, Dataset) #aggresive assertion, because why not
         if stage == "fit":
             self.datasets = self.datasets.train_test_split(
                 test_size=self.val_ratio, shuffle=self.shuffle
